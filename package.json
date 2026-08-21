@@ -1,0 +1,23 @@
+{
+  "name": "craft-ts-demo-effect",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@craft-ts/component": "0.7.0-beta.11",
+    "@craft-ts/core": "0.7.0-beta.11",
+    "@craft-ts/effect": "0.7.0-beta.11",
+    "effect": "^4.0.0-rc.110"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vite": "^8.2.2"
+  }
+}
