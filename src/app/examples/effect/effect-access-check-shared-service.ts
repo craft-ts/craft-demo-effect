@@ -4,7 +4,7 @@ import {
   craftComponent,
   div,
   heading,
-  ifBlock,
+  ifNode,
   p,
   span,
   strong,
@@ -43,10 +43,9 @@ const EffectSharedServiceComponent = craftComponent(
       },
       ({ resource }) => ({
         hasDecision: craftComputed('hasDecision', () => resource.hasValue()),
-        showUnknown: craftComputed(
-          'showUnknown',
-          () => !resource.isLoading() && !resource.hasValue(),
-        ),
+        showUnknown: craftComputed('showUnknown', function* () {
+          return !(yield* resource.isLoading()) && !resource.hasValue();
+        }),
         userName: craftComputed('userName', function* () {
           return (yield* resource.value())?.user.name ?? '…';
         }),
@@ -104,13 +103,13 @@ const EffectSharedServiceComponent = craftComponent(
       ]),
       div({ class: 'panel' }, [
         p({ class: 'panel-title' }, 'Access decision'),
-        ifBlock(accessQuery.isLoading, () => p('Checking access…')),
-        ifBlock(accessQuery.hasDecision, () => [
+        ifNode(accessQuery.isLoading, () => p('Checking access…')),
+        ifNode(accessQuery.hasDecision, () => [
           p({ class: 'row' }, [strong('User: '), accessQuery.userName]),
           p({ class: 'row' }, [strong('Level: '), accessQuery.accessLabel]),
           p({ class: 'row' }, [strong('Why: '), accessQuery.accessReason]),
         ]),
-        ifBlock(accessQuery.showUnknown, () =>
+        ifNode(accessQuery.showUnknown, () =>
           p({ class: 'row' }, 'Unknown user.'),
         ),
       ]),

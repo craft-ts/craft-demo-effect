@@ -16,6 +16,10 @@ const EXAMPLE_LINKS = [
   ['View a profile', { to: '' }],
   ['Check access rights', { to: 'access' }],
   ['Team overview', { to: 'team' }],
+  ['Effect playground', { to: 'playground' }],
+  ['Run an Effect function', { to: 'effect-function' }],
+  ['Sync vs async members', { to: 'sync-members' }],
+  ['Translate in an Effect', { to: 'i18n' }],
 ] as const satisfies readonly (readonly [string, CraftRouterLinkInput])[];
 
 export const App = craftComponent(
@@ -47,9 +51,7 @@ export const App = craftComponent(
       nav(
         { class: 'app-nav', 'aria-label': 'EffectTS examples' },
         EXAMPLE_LINKS.map(([label, link]) =>
-          a('exampleLink', { craftRouterLink: link }, label).pipe(
-            CraftRouterLink,
-          ),
+          a('exampleLink', {}, label).pipe(CraftRouterLink(link)),
         ),
       ),
       main({ class: 'app-content' }, headingSection(CraftRouterOutlet())),
