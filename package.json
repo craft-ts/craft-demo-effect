@@ -11,14 +11,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@craft-ts/component": "0.7.0-beta.17",
-    "@craft-ts/core": "0.7.0-beta.17",
-    "@craft-ts/effect": "0.7.0-beta.17",
+    "@craft-ts/component": "0.7.0-beta.18",
+    "@craft-ts/core": "0.7.0-beta.18",
+    "@craft-ts/effect": "0.7.0-beta.18",
     "effect": "^4.0.0-rc.110"
   },
   "devDependencies": {
     "typescript": "6.0.3",
     "vite": "^8.2.2",
-    "@craft-ts/dev-tools": "0.7.0-beta.17"
+    "@craft-ts/dev-tools": "0.7.0-beta.18"
   }
 }
