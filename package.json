@@ -11,17 +11,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@craft-ts/component": "0.8.0",
-    "@craft-ts/core": "0.8.0",
-    "@craft-ts/effect": "0.8.0",
-    "@craft-ts/i18n": "0.8.0",
-    "@craft-ts/i18n-effect": "0.8.0",
+    "@craft-ts/component": "0.8.1",
+    "@craft-ts/core": "0.8.1",
+    "@craft-ts/effect": "0.8.1",
+    "@craft-ts/i18n": "0.8.1",
+    "@craft-ts/i18n-effect": "0.8.1",
     "effect": "^4.0.0-rc.110"
   },
   "devDependencies": {
     "typescript": "6.0.3",
     "vite": "^8.2.2",
-    "@craft-ts/dev-tools": "0.8.0",
+    "@craft-ts/dev-tools": "0.8.1",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"
   }
