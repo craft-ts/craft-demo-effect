@@ -10,6 +10,7 @@ import {
   span,
 } from '@craft-ts/component';
 import {
+  craftService,
   craftPipe,
   craftMethod,
   insertReactOnMutation,
@@ -35,115 +36,112 @@ const TODO_STATE: Readonly<Record<string, 'done' | null>> = {
   true: 'done',
 };
 
+export const { EffectPlaygroundView, provideEffectPlaygroundView } =
+  craftService(
+    { name: 'effectPlaygroundView', providedIn: 'toProvide' },
+    function* () {
+      const addTodo = yield* mutationEffect<
+        'addTodo',
+        string,
+        string,
+        EffectTodo,
+        never,
+        TodoStore
+      >('addTodo', {
+        method: (title: string) => title.trim(),
+        loader: ({ params }) =>
+          Effect.gen(function* () {
+            const { add } = yield* TodoStore;
+            return yield* add(params);
+          }),
+      });
+      const toggleTodoMutation = yield* mutationEffect<
+        'toggleTodoMutation',
+        number,
+        number,
+        EffectTodo,
+        TodoNotFound,
+        TodoStore
+      >('toggleTodoMutation', {
+        method: (id: number) => id,
+        loader: ({ params }) =>
+          Effect.gen(function* () {
+            const { toggle } = yield* TodoStore;
+            return yield* toggle(params);
+          }),
+      });
+      const removeTodoMutation = yield* mutationEffect<
+        'removeTodoMutation',
+        number,
+        number,
+        EffectTodo,
+        TodoNotFound,
+        TodoStore
+      >('removeTodoMutation', {
+        method: (id: number) => id,
+        loader: ({ params }) =>
+          Effect.gen(function* () {
+            const { remove } = yield* TodoStore;
+            return yield* remove(params);
+          }),
+      });
+      yield* queryEffect(
+        'todosQuery',
+        {
+          params: () => 'all',
+          loader: () =>
+            Effect.gen(function* () {
+              const { list } = yield* TodoStore;
+              return yield* list;
+            }),
+        },
+        (context) =>
+          craftPipe(
+            context,
+            (nextContext) =>
+              craftPipe(
+                nextContext,
+                insertReactOnMutation(addTodo, {
+                  reload: { onMutationResolved: true },
+                }),
+                insertReactOnMutation(toggleTodoMutation, {
+                  reload: { onMutationResolved: true },
+                }),
+              ),
+            (nextContext) =>
+              insertReactOnMutation(removeTodoMutation, {
+                reload: { onMutationResolved: true },
+              })(nextContext),
+          ),
+      );
+      const titleInput = yield* state('titleInput', '', ({ set }) => ({
+        setTitle: (value: string) => set(value),
+        clearTitle: () => set(''),
+      }));
+      yield* craftMethod('add', function* () {
+        const title = (yield* titleInput()).trim();
+        if (!title) return;
+        yield* addTodo.mutate(title);
+        yield* titleInput.clearTitle();
+      });
+    },
+  );
+
 const EffectPlaygroundComponent = craftComponent(
   'EffectPlaygroundComponent',
-  {},
+  {
+    providers: [provideEffectPlaygroundView()],
+  },
   function* () {
-    const addTodo = yield* mutationEffect<
-      'addTodo',
-      string,
-      string,
-      EffectTodo,
-      never,
-      TodoStore
-    >('addTodo', {
-      method: (title: string) => title.trim(),
-      loader: ({ params }) =>
-        Effect.gen(function* () {
-          const { add } = yield* TodoStore;
-          return yield* add(params);
-        }),
-    });
-    const toggleTodoMutation = yield* mutationEffect<
-      'toggleTodo',
-      number,
-      number,
-      EffectTodo,
-      TodoNotFound,
-      TodoStore
-    >('toggleTodo', {
-      method: (id: number) => id,
-      loader: ({ params }) =>
-        Effect.gen(function* () {
-          const { toggle } = yield* TodoStore;
-          return yield* toggle(params);
-        }),
-    });
-    const removeTodoMutation = yield* mutationEffect<
-      'removeTodo',
-      number,
-      number,
-      EffectTodo,
-      TodoNotFound,
-      TodoStore
-    >('removeTodo', {
-      method: (id: number) => id,
-      loader: ({ params }) =>
-        Effect.gen(function* () {
-          const { remove } = yield* TodoStore;
-          return yield* remove(params);
-        }),
-    });
-    const todosQuery = yield* queryEffect(
-      'todos',
-      {
-        params: () => 'all',
-        loader: () =>
-          Effect.gen(function* () {
-            const { list } = yield* TodoStore;
-            return yield* list;
-          }),
-      },
-      (context) =>
-        craftPipe(
-          context,
-          (nextContext) =>
-            craftPipe(
-              nextContext,
-              insertReactOnMutation(addTodo, {
-                reload: { onMutationResolved: true },
-              }),
-              insertReactOnMutation(toggleTodoMutation, {
-                reload: { onMutationResolved: true },
-              }),
-            ),
-          (nextContext) =>
-            insertReactOnMutation(removeTodoMutation, {
-              reload: { onMutationResolved: true },
-            })(nextContext),
-        ),
-    );
-    const titleInput = yield* state('titleInput', '', ({ set }) => ({
-      setTitle: (value: string) => set(value),
-      clearTitle: () => set(''),
-    }));
-    const add = craftMethod('add', function* () {
-      const title = (yield* titleInput()).trim();
-      if (!title) return;
-      yield* addTodo.mutate(title);
-      yield* titleInput.clearTitle();
-    });
-
-    return {
+    const {
       add,
       addTodo,
       removeTodoMutation,
       titleInput,
       toggleTodoMutation,
       todosQuery,
-      setTitle: titleInput.setTitle,
-    };
-  },
-  ({
-    add,
-    addTodo,
-    removeTodoMutation,
-    titleInput,
-    toggleTodoMutation,
-    todosQuery,
-    setTitle,
-  }) =>
-    div({ class: example.card, 'data-exampleTint': 'sky' }, [
+    } = yield* EffectPlaygroundView();
+    return div({ class: example.card, 'data-exampleTint': 'sky' }, [
       heading({ class: example.title }, 'Effect Playground'),
       p(
         { class: example.intro },
@@ -156,10 +154,10 @@ const EffectPlaygroundComponent = craftComponent(
           placeholder: 'New todo title…',
           value: titleInput,
           *input(event) {
-            yield* setTitle(event.target.value);
+            yield* titleInput.setTitle(event.target.value);
           },
           *keydown(event) {
-            if (event.key === 'Enter') yield* add();
+            if (event.key === 'Enter') add();
           },
         }),
         button(
@@ -252,7 +250,8 @@ const EffectPlaygroundComponent = craftComponent(
         span({ class: example.mono }, 'TodoStore'),
         ' Layer. Craft invalidates the list after each successful Effect mutation.',
       ]),
-    ]),
+    ]);
+  },
 );
 
 export default EffectPlaygroundComponent;

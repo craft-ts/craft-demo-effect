@@ -9,7 +9,10 @@ import {
   nav,
   p,
 } from '@craft-ts/component';
-import { CraftRouterLink, type CraftRouterLinkInput } from '@craft-ts/core';
+import {
+  CraftRouterLink,
+  type CraftRouterLinkInput,
+} from '@craft-ts/core';
 import { shell } from './effect-demo.style';
 
 const EXAMPLE_LINKS = [
@@ -20,14 +23,12 @@ const EXAMPLE_LINKS = [
   ['Run an Effect function', { to: 'effect-function' }],
   ['Sync vs async members', { to: 'sync-members' }],
   ['Translate in an Effect', { to: 'i18n' }],
+  ['Effect streams', { to: 'stream-interop' }],
 ] satisfies readonly (readonly [string, CraftRouterLinkInput])[];
 
 export const App = craftComponent(
   'App',
   {},
-  function* () {
-    return {};
-  },
   () =>
     div({ class: shell.root }, [
       div({ class: shell.header }, [
